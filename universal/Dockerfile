@@ -223,10 +223,10 @@ RUN :                                \
         cmakelang
 
 RUN :                                                      \
-    && sudo mkdir -p                            /workspace \
-    && sudo chown -R $USERNAME:$USERNAME        /workspace \
-    && git config --global --add safe.directory /workspace
+    && sudo mkdir -p                            /workspaces \
+    && sudo chown -R $USERNAME:$USERNAME        /workspaces \
+    && git config --global --add safe.directory /workspaces
 
-WORKDIR /workspace
+WORKDIR /workspaces
 
 CMD sudo service ssh start -D

@@ -16,9 +16,9 @@ services:
     security_opt:
       - seccomp:unconfined
     volumes:
-      - app_volume:/workspace
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
+      - app_volume:/workspaces
 
 volumes:
   app_volume:
