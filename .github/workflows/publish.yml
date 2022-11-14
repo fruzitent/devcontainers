@@ -1,0 +1,54 @@
+name: Docker
+
+on:
+  push:
+    branches:
+      - main
+
+    tags:
+      - v*
+
+  pull_request:
+
+env:
+  registry: ghcr.io
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./universal/Dockerfile
+            tag: universal
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build image
+        run: docker build . --file ${{ matrix.dockerfile }} --tag ${{ matrix.tag }} --label "runnumber=${GITHUB_RUN_ID}"
+
+      - name: Log into repository
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.registry }} -u $ --password-stdin
+
+      - name: Push image
+        run: |
+          IMAGE_ID=${{ env.registry }}/${{ github.repository_owner }}/${{ matrix.tag }}
+
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          [ "$VERSION" == "main" ] && VERSION=latest
+
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+
+          docker tag ${{ matrix.tag }} $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
