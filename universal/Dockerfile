@@ -212,10 +212,10 @@ RUN :                                                                           
 ARG LLVM_URL="https://apt.llvm.org/llvm.sh"
 ARG LLVM_VER="15"
 
-RUN :                                                                                                                                                                                                                                                                           \
-    && curl -L $LLVM_URL | sudo bash -s $LLVM_VER all                                                                                                                                                                                                                           \
-    && echo "update-alternatives --install /usr/local/bin/clang       clang       /usr/bin/clang-$LLVM_VER       1 $(find "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "clang"       -not -name "llvm*" -printf "--slave /usr/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh \
-    && echo "update-alternatives --install /usr/local/bin/llvm-config llvm-config /usr/bin/llvm-config-$LLVM_VER 1 $(find "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "llvm-config"      -name "llvm*" -printf "--slave /usr/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
+RUN :                                                                                                                                                                                                                                                                                    \
+    && curl -L $LLVM_URL | sudo bash -s $LLVM_VER all                                                                                                                                                                                                                                    \
+    && echo "update-alternatives --install /usr/local/bin/clang       clang       /usr/bin/clang-$LLVM_VER       1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "clang"       -not -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh \
+    && echo "update-alternatives --install /usr/local/bin/llvm-config llvm-config /usr/bin/llvm-config-$LLVM_VER 1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "llvm-config"      -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
 
 RUN :                                \
     && python3 -m pip install --user \
