@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+      DOCKER_BUILDKIT: 1
+    init: true
+    ports:
+      - "22:22"
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - .:/workspace:cached
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
