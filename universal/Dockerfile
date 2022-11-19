@@ -36,6 +36,7 @@ RUN :                                             \
 RUN :                                             \
     && apt-get update                             \
     && apt-get install -y --no-install-recommends \
+        build-essential                           \
         ca-certificates                           \
         curl                                      \
         git                                       \
@@ -157,6 +158,7 @@ RUN :                                                                           
     && sudo apt-get update                                                                            \
     && sudo apt-get install -y --no-install-recommends                                                \
         python$PYTHON_VER                                                                             \
+        python$PYTHON_VER-dev                                                                         \
         python$PYTHON_VER-venv                                                                        \
     && sudo apt-get autoremove -y                                                                     \
     && sudo apt-get clean -y                                                                          \
@@ -222,7 +224,7 @@ RUN :                                \
         cpplint                      \
         cmakelang
 
-RUN :                                                      \
+RUN :                                                       \
     && sudo mkdir -p                            /workspaces \
     && sudo chown -R $USERNAME:$USERNAME        /workspaces \
     && git config --global --add safe.directory /workspaces
