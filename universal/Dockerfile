@@ -84,10 +84,10 @@ RUN <<EOF
 EOF
 
 RUN <<EOF
-    curl -L $FONTS_URL -o              /home/$USERNAME/fonts.zip
-    mkdir -p                           /home/$USERNAME/.local/share/fonts
-    unzip /home/$USERNAME/fonts.zip -d /home/$USERNAME/.local/share/fonts
-    rm    /home/$USERNAME/fonts.zip
+    curl -L $FONTS_URL -o    /tmp/fonts.zip
+    mkdir -p                 /home/$USERNAME/.local/share/fonts
+    unzip  /tmp/fonts.zip -d /home/$USERNAME/.local/share/fonts
+    rm -rf /tmp/fonts.zip
     fc-cache -fv
 EOF
 
@@ -97,10 +97,10 @@ RUN <<EOF
     sudo apt-get autoremove -y
     sudo apt-get clean -y
     sudo rm -rf /var/lib/apt/lists/*
-    sudo chsh $USERNAME -s $(which fish)
+    sudo chsh $USERNAME -s /usr/bin/fish
 EOF
 
-SHELL ["fish", "-c"]
+SHELL ["/usr/bin/fish", "-c"]
 
 ARG FISHER_URL="https://git.io/fisher"
 
@@ -136,7 +136,7 @@ RUN <<EOF
     sudo apt-get autoremove -y
     sudo apt-get clean -y
     sudo rm -rf /var/lib/apt/lists/*
-    sudo update-alternatives --install /usr/local/bin/python3 python3 $(which python$PYTHON_VER) 1
+    sudo update-alternatives --install /usr/local/bin/python3 python3 /usr/bin/python$PYTHON_VER 1
 EOF
 
 ARG PIP_URL="https://bootstrap.pypa.io/get-pip.py"
@@ -172,8 +172,8 @@ RUN <<EOF
     sudo apt-get autoremove -y
     sudo apt-get clean -y
     sudo rm -rf /var/lib/apt/lists/*
-    sudo update-alternatives --install /usr/local/bin/g++ g++ $(which g++-$GCC_VER) 1
-    sudo update-alternatives --install /usr/local/bin/gcc gcc $(which gcc-$GCC_VER) 1
+    sudo update-alternatives --install /usr/local/bin/g++ g++ /usr/bin/g++-$GCC_VER 1
+    sudo update-alternatives --install /usr/local/bin/gcc gcc /usr/bin/gcc-$GCC_VER 1
 EOF
 
 ARG LLVM_URL="https://apt.llvm.org/llvm.sh"
@@ -181,12 +181,12 @@ ARG LLVM_VER="15"
 
 RUN <<EOF
     curl -L $LLVM_URL | sudo bash -s $LLVM_VER all
-    echo "update-alternatives --install /usr/local/bin/clang       clang       /usr/bin/clang-$LLVM_VER       1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "clang"       -not -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
-    echo "update-alternatives --install /usr/local/bin/llvm-config llvm-config /usr/bin/llvm-config-$LLVM_VER 1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -not -name "llvm-config"      -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
+    echo "update-alternatives --install /usr/local/bin/clang       clang       /usr/bin/clang-$LLVM_VER       1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -executable -not -name "clang"       -not -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
+    echo "update-alternatives --install /usr/local/bin/llvm-config llvm-config /usr/bin/llvm-config-$LLVM_VER 1 $(find -L "/usr/lib/llvm-$LLVM_VER/bin" -type f -executable -not -name "llvm-config"      -name "llvm*" -printf "--slave /usr/local/bin/%f %f /usr/bin/%f-$LLVM_VER ")" | sudo sh
 EOF
 
 RUN <<EOF
-    python3 -m pip install --user cpplint cmakelang
+    python3 -m pip install --user cmakelang cpplint
 EOF
 
 WORKDIR /workspaces
