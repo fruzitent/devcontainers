@@ -186,7 +186,7 @@ RUN <<EOF
 EOF
 
 RUN <<EOF
-    python3 -m pip install --user cmakelang cpplint 
+    python3 -m pip install --user cmakelang cpplint
 EOF
 
 ARG TEXLIVE_URL="https://github.com/TeX-Live/installer/archive/refs/heads/master.zip"
@@ -221,11 +221,17 @@ ARG TEXLIVEONFLY_URL="https://raw.githubusercontent.com/maphy-psd/texliveonfly/m
 
 RUN <<EOF
     curl -L $TEXLIVEONFLY_URL -o /home/$USERNAME/texliveonfly.py
-    tlmgr install epstopdf-pkg infwarerr latex-bin latexmk tools xkeyval
-    tlmgr install babel babel-english babel-ukrainian biber biblatex collection-fontsrecommended collection-fontutils fontspec roboto
+    tlmgr install biber biblatex chktex epstopdf-pkg infwarerr latex-bin latexindent latexmk tools xkeyval
+    tlmgr install babel babel-ukrainian collection-fontsrecommended collection-fontutils fontaxes fontspec roboto ukrhyph
     tlmgr install amsmath booktabs geometry graphics hyperref mathtools microtype minted multirow parskip
     sudo ln -s /usr/local/texlive/texdir/texmf-var/fonts/conf/texlive-fontconfig.conf /etc/fonts/conf.d/09-texlive.conf
     fc-cache -fv
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends cpanminus
+    sudo apt-get autoremove -y
+    sudo apt-get clean -y
+    sudo rm -rf /var/lib/apt/lists/*
+    sudo cpanm install File::HomeDir YAML::Tiny
 EOF
 
 RUN <<EOF
