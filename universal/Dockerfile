@@ -186,7 +186,52 @@ RUN <<EOF
 EOF
 
 RUN <<EOF
-    python3 -m pip install --user cmakelang cpplint
+    python3 -m pip install --user cmakelang cpplint 
+EOF
+
+ARG TEXLIVE_URL="https://github.com/TeX-Live/installer/archive/refs/heads/master.zip"
+ARG TEXLIVE_SCHEME="infraonly"
+
+COPY <<EOF /tmp/texlive.profile
+# https://tug.org/texlive/doc/install-tl.html
+binary_x86_64-linux 1
+selected_scheme   scheme-$TEXLIVE_SCHEME
+TEXDIR            /usr/local/texlive/texdir
+TEXMFLOCAL        /usr/local/texlive/texmf-local
+TEXMFSYSCONFIG    /usr/local/texlive/texdir/texmf-config
+TEXMFSYSVAR       /usr/local/texlive/texdir/texmf-var
+TEXMFCONFIG       /home/$USERNAME/texlive/texmf-config
+TEXMFVAR          /home/$USERNAME/texlive/texmf-var
+TEXMFHOME         /home/$USERNAME/texmf
+tlpdbopt_sys_bin  /usr/local/bin
+tlpdbopt_sys_info /usr/local/share/info
+tlpdbopt_sys_man  /usr/local/share/man
+EOF
+
+RUN <<EOF
+    curl -L $TEXLIVE_URL -o /tmp/texlive.zip
+    unzip                   /tmp/texlive.zip -d /tmp
+    sudo perl               /tmp/installer-master/install-tl --no-interaction --profile /tmp/texlive.profile
+    rm -rf                  /tmp/installer-master
+    sudo chown -R $USERNAME:$USERNAME /usr/local/texlive
+    fish_add_path                     /usr/local/texlive/texdir/bin/x86_64-linux
+EOF
+
+ARG TEXLIVEONFLY_URL="https://raw.githubusercontent.com/maphy-psd/texliveonfly/master/texliveonfly.py"
+
+RUN <<EOF
+    curl -L $TEXLIVEONFLY_URL -o /home/$USERNAME/texliveonfly.py
+    tlmgr install epstopdf-pkg infwarerr latex-bin latexmk tools xkeyval
+    tlmgr install babel babel-english babel-ukrainian biber biblatex collection-fontsrecommended collection-fontutils fontspec roboto
+    tlmgr install amsmath booktabs geometry graphics hyperref mathtools microtype minted multirow parskip
+    sudo ln -s /usr/local/texlive/texdir/texmf-var/fonts/conf/texlive-fontconfig.conf /etc/fonts/conf.d/09-texlive.conf
+    fc-cache -fv
+EOF
+
+RUN <<EOF
+    sudo mkdir -p                            /workspaces
+    sudo chown -R $USERNAME:$USERNAME        /workspaces
+    git config --global --add safe.directory /workspaces
 EOF
 
 WORKDIR /workspaces
