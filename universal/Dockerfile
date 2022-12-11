@@ -128,6 +128,20 @@ RUN <<EOF
     echo "starship init fish | source" >> /home/$USERNAME/.config/fish/conf.d/config.fish
 EOF
 
+ARG NODE_VER="19.x"
+ARG YARN_VER="stable"
+
+RUN <<EOF
+    curl -L https://deb.nodesource.com/setup_$NODE_VER | sudo sh
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends nodejs
+    sudo apt-get autoremove -y
+    sudo apt-get clean -y
+    sudo rm -rf /var/lib/apt/lists/*
+    sudo corepack enable
+    corepack prepare yarn@$YARN_VER --activate
+EOF
+
 ARG PYTHON_VER="3.11"
 
 RUN <<EOF
@@ -154,6 +168,7 @@ RUN <<EOF
     curl -L $POETRY_URL | python3 -
     mkdir -p                  /home/$USERNAME/.config/fish/completions
     poetry completions fish > /home/$USERNAME/.config/fish/completions/poetry.fish
+    poetry config virtualenvs.in-project true
 EOF
 
 RUN <<EOF
@@ -234,10 +249,26 @@ RUN <<EOF
     sudo cpanm install File::HomeDir YAML::Tiny
 EOF
 
+ARG GITLFS_URL="https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh"
+
+RUN <<EOF
+    curl -L $GITLFS_URL | sudo bash
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends cpanminus
+    sudo apt-get autoremove -y
+    sudo apt-get clean -y
+    sudo rm -rf /var/lib/apt/lists/*
+EOF
+
+ARG GIT_EMAIL=""
+ARG GIT_USERNAME=""
+
 RUN <<EOF
     sudo mkdir -p                            /workspaces
     sudo chown -R $USERNAME:$USERNAME        /workspaces
     git config --global --add safe.directory /workspaces
+    git config --global --add user.email     $GIT_EMAIL
+    git config --global --add user.name      $GIT_USERNAME
 EOF
 
 WORKDIR /workspaces
