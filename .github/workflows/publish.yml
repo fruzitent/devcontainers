@@ -11,9 +11,6 @@ on:
     tags:
       - 'v*.*.*'
 
-  schedule:
-    - cron: '00 18 * * *'
-
 env:
   registry: ghcr.io
 
